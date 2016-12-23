@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 PACKAGE=objectstore
-OBJECTSTORE=documents
-OBJECTSTORE_SERVICE_KEY=testclient
+OBJECTSTORE=${1-documents}
+OBJECTSTORE_SERVICE_KEY=${2-testclient}
 
 CREDS="`cf service-key $OBJECTSTORE $OBJECTSTORE_SERVICE_KEY | grep -v Getting`"
 #VCAP_SERVICES="{\"Object-Storage\": [{\"credentials\": $CREDS}]}"
