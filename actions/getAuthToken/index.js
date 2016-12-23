@@ -6,9 +6,7 @@ exports.main = params => {
 
 	try {
 	    os.client.refreshToken()
-		.then(() => {
-		    resolve(os.client.authToken)
-		})
+		.then(() =>  resolve(os.client.authToken))
 		.catch(reject)
 
 	} catch (err) {
