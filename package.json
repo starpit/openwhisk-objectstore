@@ -4,11 +4,11 @@
   "description": "An OpenWhisk package for the Bluemix ObjectStore",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/jshint lib/*.js actions/*/*.js"
   },
   "author": {
-      "name": "Nick Mitchell",
-      "email": "nickm@us.ibm.com"
+    "name": "Nick Mitchell",
+    "email": "nickm@us.ibm.com"
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -25,5 +25,9 @@
     "package",
     "bluemix",
     "objectstore"
-  ]
+  ],
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "jshint": "^2.9.4"
+  }
 }
