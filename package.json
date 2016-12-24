@@ -28,6 +28,9 @@
   ],
   "devDependencies": {
     "ava": "^0.17.0",
-    "jshint": "^2.9.4"
+    "expand-home-dir": "0.0.3",
+    "jshint": "^2.9.4",
+    "openwhisk": "^3.2.1",
+    "properties-parser": "^0.3.1"
   }
 }
