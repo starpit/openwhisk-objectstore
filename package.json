@@ -7,14 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": {
-      "name": "Nick Mitchell"
+      "name": "Nick Mitchell",
       "email": "nickm@us.ibm.com"
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "bluemix-objectstorage": "^0.1.2",
+    "bluemix-objectstorage": "git@github.com:starpit/bluemix-objectstorage-serversdk-nodejs.git#accept_token_as_creds",
     "uuid": "^3.0.1"
-  }
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:starpit/openwhisk-objectstore.git"
