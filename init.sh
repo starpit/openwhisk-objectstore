@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-PACKAGE=objectstore
+. ./config/config.js
+
 OBJECTSTORE=${1-documents}
 OBJECTSTORE_SERVICE_KEY=${2-testclient}
 
