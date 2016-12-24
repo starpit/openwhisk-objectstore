@@ -1,3 +1,7 @@
-const ObjectStorage = require('bluemix-objectstorage').ObjectStorage
+const wrap = require('./lib/api-wrapper.js')
 
-exports.main = params => new ObjectStorage(params.creds, undefined, params.authToken).createContainer(params.containerName)
+exports.main = wrap({ api: 'createContainer',
+		      project: params => params.containerName,
+		      postprocess: Cp => Cp.then(C => ({ status: 'success', containerName: C.name }))
+   		                           .catch(err => ({ status: 'error', error: err }))
+		    })

@@ -22,7 +22,7 @@ wsk package update "${PACKAGE}" -p creds "${CREDS_WITHOUT_PASSWORD}"
 for dir in actions/*/; do
     action=$(basename "$dir")
     rm -f "$dir/node_modules"
-    (cd "$dir" && ln -s ../../node_modules node_modules)
+    (cd "$dir" && ln -s ../../node_modules node_modules && ln -s ../../lib lib)
 
     wsk action delete "${PACKAGE}/${action}" 2>&1 | grep -v "resource does not exist"
     (cd $dir \
@@ -40,5 +40,5 @@ for dir in actions/*/; do
 	fi
     fi
     
-    rm -f "$dir/node_modules"
+    rm -f "$dir/node_modules" "$dir/lib"
 done
