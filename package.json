@@ -4,7 +4,7 @@
   "description": "An OpenWhisk package for the Bluemix ObjectStore",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/jshint lib/*.js actions/*/*.js && ./util/scanCode.sh && ava --verbose --serial"
+    "test": "./node_modules/.bin/jshint lib/*.js actions/*/*.js && ava --verbose --serial"
   },
   "author": {
     "name": "Nick Mitchell",
