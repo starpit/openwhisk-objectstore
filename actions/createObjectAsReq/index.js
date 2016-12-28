@@ -18,12 +18,17 @@ const wrap = require('./lib/api-wrapper.js')
 
 exports.main = wrap({ api: 'getContainer',
 		      project: params => params.containerName || params.container,
-		      postprocess: (Cp, params) => Cp.then(C => ({ method: 'PUT',
-								   url: `${C.baseResourceUrl}/${params.objectName}`,
-								   body: 'replace this with your object',
-								   headers: { 'X-Detect-Content-Type': params.isBinary,
-									      'X-Auth-Token': 'replace this with your auth token' }
-								 })
-							  )
-   		                                     .catch(err => ({ status: 'error', error: err }))
+		      postprocess: (Cp, params) =>
+		          Cp.then(C => ({ method: 'PUT',
+					  url: `${C.baseResourceUrl}/${params.objectName}`,
+					  body: 'replace with your object; if binary, make sure to pass X-Detect-Content-Type:false (or isBinary:true to this action next time)',
+					  headers: {
+					      'X-Detect-Content-Type': params.isBinary ? true : false,
+					      'X-Auth-Token': params.authToken
+						  ? params.authToken.token
+						  : 'replace this with your auth token'
+					  }
+					})
+				 )
+   		      .catch(err => ({ status: 'error', error: err }))
 		    })
