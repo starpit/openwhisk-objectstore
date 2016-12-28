@@ -17,7 +17,7 @@
 const wrap = require('./lib/api-wrapper.js')
 
 exports.main = wrap({ api: 'getContainer',
-		      project: params => params.containerName,
+		      project: params => params.containerName || params.container,
 		      postprocess: (Cp, params) => Cp.then(C => ({ method: 'PUT',
 								   url: `${C.baseResourceUrl}/${params.objectName}`,
 								   body: 'replace this with your object',
