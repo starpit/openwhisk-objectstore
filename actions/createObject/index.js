@@ -19,7 +19,8 @@ const wrap = require('./lib/api-wrapper.js')
 exports.main = wrap({ api: 'getContainer',
 		      project: params => params.containerName || params.container,
 		      postprocess: (Cp, params) => Cp.then(C => C.createObject(params.objectName,
-									       params.isBinary ? Buffer.from(params.data, 'base64') : params.data,
-									       params.isBinary))
+									       Buffer.from(params.data, 'base64'),
+									       !params.isBinary))
+		                                     .then(O => ({ status: 'success', name: O.name, url: O.baseResourceUrl }))
    		                                     .catch(err => ({ status: 'error', error: err }))
 		    })
