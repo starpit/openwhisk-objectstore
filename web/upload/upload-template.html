@@ -154,7 +154,11 @@
       }
 	
       const doGetAuthToken = () => {
-	    try {
+	  try {
+	      if (qs.authToken) {
+		  return doGetRequestTemplate(JSON.parse(decodeURIComponent(qs.authToken)))
+	      }
+	      
 		const authorization_raw = qs.authorization
 	    
 		if (!authorization_raw) {
@@ -239,7 +243,7 @@
       const doSubmit = doGetAuthToken
 
       const init = () => {
-	  if (!qs.authorization) {
+	  if (!qs.authorization && !qs.authToken) {
 	      // user hasn't logged in, yet
 	      doLogin()
 	  }
