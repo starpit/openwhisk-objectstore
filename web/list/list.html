@@ -1,0 +1,191 @@
+<html>
+  <head>
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <style>
+    #list {
+	list-style: none;
+	margin: 3em 0;
+    }
+    #list-item-template {
+	display: none;
+    }
+    #list-item {
+	margin: 0;
+    }
+    #list .list-item .list-item-content {
+	position: relative;
+	float: left;
+	padding: 10px 10px 25px 10px;
+	background: #eee;
+	border: 1px solid #fff;
+	-moz-box-shadow: 0px 2px 15px #333;
+    }
+    .list-item:nth-child(1) .list-item-content {
+        z-index: 1;
+	-webkit-transform: rotate(-10deg);
+	-moz-transform: rotate(-10deg);
+	transform: rotate(-10deg);
+    }
+    .list-item:nth-child(2) .list-item-content {
+        z-index: 5;
+	-webkit-transform: rotate(-3deg);
+	-moz-transform: rotate(-3deg);
+	transform: rotate(-3deg);
+    }
+    .list-item:nth-child(3) .list-item-content {
+        z-index: 3;
+	-webkit-transform: rotate(4deg);
+	-moz-transform: rotate(4deg);
+	transform: rotate(4deg);
+    }
+    .list-item:nth-child(4) .list-item-content {
+        z-index: 4;
+	-webkit-transform: rotate(14deg);
+	-moz-transform: rotate(14deg);
+	transform: rotate(14deg);
+    }
+    .list-item:nth-child(5) .list-item-content {
+        z-index: 2;
+	-webkit-transform: rotate(-12deg);
+	-moz-transform: rotate(-12deg);
+	transform: rotate(-12deg);
+    }
+    .list-item:nth-child(6) .list-item-content {
+        z-index: 6;
+	-webkit-transform: rotate(5deg);
+	-moz-transform: rotate(5deg);
+	transform: rotate(5deg);
+    }
+    
+    </style>
+	  
+    <style>
+      body {    font-family: "Roboto", sans-serif;    margin: 0;    -webkit-font-smoothing: antialiased;}iframe {    border: none;}.full-width {    width: 100%;}.content {    display: flex;}.content.vertical {    flex-direction: column;}.header {    display: flex;    flex-direction: column;    color: white;    background-color: #1f78b4;    font: 16px/24px Roboto, sans-serif;    box-shadow: 0 0 4px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.28);}.header-title {    display: flex;    align-items: center;    margin: 6px 0;    padding: 0 24px;    font-size: 20px;    text-transform: capitalize;}.header-title-icon {    margin: 6px 16px 6px 0;    font-size: 150%;}.header-sub {    padding: 8px 24px;    font-size: 16px;}#providers {    display: flex;    justify-content: center;    align-items: center;    margin: 2em 0;}#providers.something-selected .provider-badge:not(.selected) {    opacity: 0.4;}#providers.something-selected .provider-badge.selected .sign-in-text, #providers.something-selected .provider-badge:not(.selected) .signed-in-text, #providers:not(.something-selected) .signed-in-text {	display: none;}/*.provider-badge.selected {        border: 3px solid black;        border-top: none;        border-bottom: none;    }*/#provider-template {    display: none;}.provider-badge {    display: flex;    align-items: center;    color: white;    padding: 6px;    margin: 1em;    width: 215px;    border-radius: 4px/8px;    /*padding: 1em;	font-size: 125%;	background-color: #e3e3e3;*/    transition: all 150ms ease-in-out;}.provider-text {    font-size: 0.875rem;    margin: 0 24px;    flex: 1;    text-align: right;}.provider-name {    text-transform: capitalize;}.provider.github .provider-badge:hover {    -webkit-filter: sepia(1) hue-rotate(120deg);    filter: sepia(1) hue-rotate(120deg);}.provider-badge:hover, button:enabled:hover {			   -webkit-filter: saturate(1.5);			   filter: saturate(1.5);			   cursor: pointer;		       }.status {    display: flex;    align-items: center;    margin: 1em;    justify-content: center;    font-size: 125%;}#success-mark {    display:none;    font-size: 250%;    margin-right: 0.75rem;}#success-mark.success {    color: green;}#success-mark.failure {    color: red;}.provider .provider-icon {    background-size: contain;    background-repeat: no-repeat;    background-position: center;    width: 2em;    height: 2em;}.provider.github .provider-badge {    background-color: #666;}.provider.google .provider-badge {    background-color: #df4a32;}.provider.google .provider-icon {    background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Google_plus.svg/2000px-Google_plus.svg.png);    /*https://developers.google.com/accounts/images/sign-in-with-google.png);*/}.provider.github .provider-icon {    background-image: url(https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg);}
+    </style>
+
+    <script>
+      /** endpoint for acquiring an access_token */
+      const login_uri = "https://dal.objectstorage.open.softlayer.com/v1/AUTH_8505e32a0c1a48c2b7a37c063adad2ba/public/login.html"
+
+      /** the query map from the URI */
+      const qs = window.location.search
+	    .split(/[&\?]/)
+	    .map(kv => kv.split("="))
+	    .reduce((M,kv)=> {M[kv[0]] = kv[1]; return M}, {})
+
+      const doLogin = () => {
+	  return window.location.href = `${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`
+      }
+	
+const doGetAuthToken = next => new Promise((resolve, reject) => {
+	    try {
+		const authorization_raw = qs.authorization
+	    
+		if (!authorization_raw) {
+		    //console.log("GOOFA",`${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`)
+		    doLogin()
+		 
+		} else {
+		    const authorization = JSON.parse(decodeURIComponent(authorization_raw))
+
+		    const xhr = new XMLHttpRequest();
+		    xhr.onreadystatechange = function() {
+			if (xhr.readyState == XMLHttpRequest.DONE) {
+			    resolve(JSON.parse(xhr.responseText));
+			}
+		    };
+		    xhr.open("GET", `https://8c979b4f-8213-4556-b4e1-db03f4a3b326-gws.api-gw.mybluemix.net/objectstore/getAuthToken?provider=${authorization.provider}&access_token=${authorization.access_token}`, true);
+
+		    //console.log("AUTH",authorization, xhr)
+		    //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		    xhr.send();
+		    /*JSON.stringify({
+			provider: authorization.provider,
+			access_token: authorization.access_token
+		    }));*/
+		}
+	  
+		return false;
+	    } catch (e) {
+		console.error(e);
+		return false;
+	    }
+})
+
+      const wrapItUp = (successMark, successMarkClass, successMessage) => {
+	  document.getElementById("success-mark").innerText = successMark
+	  document.getElementById("success-mark").setAttribute("class", successMarkClass)
+	  document.getElementById("success").innerText = successMessage
+      }
+
+const renderRow = (table, rowTemplate) => O => {
+    try {
+	const row = rowTemplate.cloneNode(true)
+	table.appendChild(row)
+	row.id = ""
+	row.querySelector(".list-item-label").innerText = O.name
+    } catch (e) {
+	console.error(e)
+    }
+}
+
+const renderView = objects => objects.forEach(renderRow(document.getElementById("list"), document.getElementById("list-item-template")))
+
+const fetchData = authToken => new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = () => {
+	if (xhr.readyState == XMLHttpRequest.DONE) {
+	    resolve(JSON.parse(xhr.responseText).objects)
+	}
+    }
+    //xhr.open("GET", `https://8c979b4f-8213-4556-b4e1-db03f4a3b326-gws.api-gw.mybluemix.net/objectstore/listObjectsInInbox?includeDocs=true&authToken=${encodeURIComponent(authToken)}`, true)
+    xhr.open("POST", "https://8c979b4f-8213-4556-b4e1-db03f4a3b326-gws.api-gw.mybluemix.net/objectstore/listObjectsInInbox", true)
+    xhr.send(JSON.stringify({includeDocs: true, authToken: authToken}))
+})
+
+const initializeUploadFrame = authToken => new Promise((resolve, reject) => {
+    try {
+	const frame = document.getElementById("upload-frame")
+	frame.setAttribute("src", `${frame.getAttribute("data-src")}?authToken=${encodeURIComponent(JSON.stringify(authToken))}`)
+    } catch (e) { }
+    
+    resolve(authToken)
+})
+
+const init = () => {
+    if (!qs.authorization) {
+	// user hasn't logged in, yet
+	return doLogin()
+    }
+
+    doGetAuthToken()
+	.then(initializeUploadFrame)
+	.then(fetchData)
+	.then(renderView)
+}
+</script>
+  </head>
+  
+  <body onload="init()">
+    <div class="header">
+      <span class="header-title">
+	<span class="header-title-icon">&#9729;</span>
+	list
+      </span>
+      <span class="header-sub">Objects in inbox</span>
+    </div>
+	
+    <li id="list-item-template" class="list-item">
+       <div class="list-item-content">
+	 <div class="list-item-label"></div>
+	 <div class="list-item-thumbnail"></div>
+       </div>
+    </li>
+
+    <div class="content vertical">
+      <ul id="list"></ul>
+      <iframe id="upload-frame" class="full-width" data-src="https://dal.objectstorage.open.softlayer.com/v1/AUTH_8505e32a0c1a48c2b7a37c063adad2ba/public/upload.html"></iframe>
+    </div>
+  </body>
+</html>

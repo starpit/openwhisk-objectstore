@@ -1,0 +1,191 @@
+<html>
+  <head>
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <style>
+    #list {
+	list-style: none;
+	margin: 3em 0;
+    }
+    #list-item-template {
+	display: none;
+    }
+    #list-item {
+	margin: 0;
+    }
+    #list .list-item .list-item-content {
+	position: relative;
+	float: left;
+	padding: 10px 10px 25px 10px;
+	background: #eee;
+	border: 1px solid #fff;
+	-moz-box-shadow: 0px 2px 15px #333;
+    }
+    .list-item:nth-child(1) .list-item-content {
+        z-index: 1;
+	-webkit-transform: rotate(-10deg);
+	-moz-transform: rotate(-10deg);
+	transform: rotate(-10deg);
+    }
+    .list-item:nth-child(2) .list-item-content {
+        z-index: 5;
+	-webkit-transform: rotate(-3deg);
+	-moz-transform: rotate(-3deg);
+	transform: rotate(-3deg);
+    }
+    .list-item:nth-child(3) .list-item-content {
+        z-index: 3;
+	-webkit-transform: rotate(4deg);
+	-moz-transform: rotate(4deg);
+	transform: rotate(4deg);
+    }
+    .list-item:nth-child(4) .list-item-content {
+        z-index: 4;
+	-webkit-transform: rotate(14deg);
+	-moz-transform: rotate(14deg);
+	transform: rotate(14deg);
+    }
+    .list-item:nth-child(5) .list-item-content {
+        z-index: 2;
+	-webkit-transform: rotate(-12deg);
+	-moz-transform: rotate(-12deg);
+	transform: rotate(-12deg);
+    }
+    .list-item:nth-child(6) .list-item-content {
+        z-index: 6;
+	-webkit-transform: rotate(5deg);
+	-moz-transform: rotate(5deg);
+	transform: rotate(5deg);
+    }
+    
+    </style>
+	  
+    <style>
+      {STYLE_COMMON}
+    </style>
+
+    <script>
+      /** endpoint for acquiring an access_token */
+      const login_uri = "{LOGIN_ENDPOINT}"
+
+      /** the query map from the URI */
+      const qs = window.location.search
+	    .split(/[&\?]/)
+	    .map(kv => kv.split("="))
+	    .reduce((M,kv)=> {M[kv[0]] = kv[1]; return M}, {})
+
+      const doLogin = () => {
+	  return window.location.href = `${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`
+      }
+	
+const doGetAuthToken = next => new Promise((resolve, reject) => {
+	    try {
+		const authorization_raw = qs.authorization
+	    
+		if (!authorization_raw) {
+		    //console.log("GOOFA",`${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`)
+		    doLogin()
+		 
+		} else {
+		    const authorization = JSON.parse(decodeURIComponent(authorization_raw))
+
+		    const xhr = new XMLHttpRequest();
+		    xhr.onreadystatechange = function() {
+			if (xhr.readyState == XMLHttpRequest.DONE) {
+			    resolve(JSON.parse(xhr.responseText));
+			}
+		    };
+		    xhr.open("GET", `{GET_TOKEN_ENDPOINT}?provider=${authorization.provider}&access_token=${authorization.access_token}`, true);
+
+		    //console.log("AUTH",authorization, xhr)
+		    //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		    xhr.send();
+		    /*JSON.stringify({
+			provider: authorization.provider,
+			access_token: authorization.access_token
+		    }));*/
+		}
+	  
+		return false;
+	    } catch (e) {
+		console.error(e);
+		return false;
+	    }
+})
+
+      const wrapItUp = (successMark, successMarkClass, successMessage) => {
+	  document.getElementById("success-mark").innerText = successMark
+	  document.getElementById("success-mark").setAttribute("class", successMarkClass)
+	  document.getElementById("success").innerText = successMessage
+      }
+
+const renderRow = (table, rowTemplate) => O => {
+    try {
+	const row = rowTemplate.cloneNode(true)
+	table.appendChild(row)
+	row.id = ""
+	row.querySelector(".list-item-label").innerText = O.name
+    } catch (e) {
+	console.error(e)
+    }
+}
+
+const renderView = objects => objects.forEach(renderRow(document.getElementById("list"), document.getElementById("list-item-template")))
+
+const fetchData = authToken => new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = () => {
+	if (xhr.readyState == XMLHttpRequest.DONE) {
+	    resolve(JSON.parse(xhr.responseText).objects)
+	}
+    }
+    //xhr.open("GET", `{LIST_ENDPOINT}?includeDocs=true&authToken=${encodeURIComponent(authToken)}`, true)
+    xhr.open("POST", "{LIST_ENDPOINT}", true)
+    xhr.send(JSON.stringify({includeDocs: true, authToken: authToken}))
+})
+
+const initializeUploadFrame = authToken => new Promise((resolve, reject) => {
+    try {
+	const frame = document.getElementById("upload-frame")
+	frame.setAttribute("src", `${frame.getAttribute("data-src")}?authToken=${encodeURIComponent(JSON.stringify(authToken))}`)
+    } catch (e) { }
+    
+    resolve(authToken)
+})
+
+const init = () => {
+    if (!qs.authorization) {
+	// user hasn't logged in, yet
+	return doLogin()
+    }
+
+    doGetAuthToken()
+	.then(initializeUploadFrame)
+	.then(fetchData)
+	.then(renderView)
+}
+</script>
+  </head>
+  
+  <body onload="init()">
+    <div class="header">
+      <span class="header-title">
+	<span class="header-title-icon">&#9729;</span>
+	{PAGE}
+      </span>
+      <span class="header-sub">Objects in {CONTAINER}</span>
+    </div>
+	
+    <li id="list-item-template" class="list-item">
+       <div class="list-item-content">
+	 <div class="list-item-label"></div>
+	 <div class="list-item-thumbnail"></div>
+       </div>
+    </li>
+
+    <div class="content vertical">
+      <ul id="list"></ul>
+      <iframe id="upload-frame" class="full-width" data-src="{UPLOAD_ENDPOINT}"></iframe>
+    </div>
+  </body>
+</html>
