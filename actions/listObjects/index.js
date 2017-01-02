@@ -18,7 +18,7 @@ const wrap = require('./lib/api-wrapper.js')
 
 const makeReadyForReturn = (L, params) =>
     params && params.includeDocs
-	? L
+        ? L.map(object => { delete object.client; delete object.objectStorage; return object; })
 	: L.map(object => object.name)
 
 exports.main = wrap({ api: 'getContainer',
