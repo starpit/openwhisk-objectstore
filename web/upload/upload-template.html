@@ -140,15 +140,16 @@
     </style>
 
     <script>
+      /** endpoint for acquiring an access_token */
       const login_uri = "{LOGIN_ENDPOINT}"
 
+      /** the query map from the URI */
       const qs = window.location.search
-	    .substring(1)
-	    .split("&")
+	    .split(/[&\?]/)
 	    .map(kv => kv.split("="))
 	    .reduce((M,kv)=> {M[kv[0]] = kv[1]; return M}, {})
-	
-      function doSubmit() {
+
+      const doGetAuthToken = () => {
 	    try {
 		const authorization_raw = qs.authorization
 	    
@@ -162,7 +163,7 @@
 		    const xhr = new XMLHttpRequest();
 		    xhr.onreadystatechange = function() {
 			if (xhr.readyState == XMLHttpRequest.DONE) {
-			    doUploadStep1(JSON.parse(xhr.responseText));
+			    doGetRequestTemplate(JSON.parse(xhr.responseText));
 			}
 		    };
 		    xhr.open("GET", `{GET_TOKEN_ENDPOINT}?provider=${authorization.provider}&access_token=${authorization.access_token}`, true);
@@ -183,8 +184,8 @@
 	    }
       }
 
-      function doUploadStep1(authToken) {
-	  console.log("MOMO", authToken);
+      function doGetRequestTemplate(authToken) {
+	  console.log("got authToken", authToken);
 	  if (authToken.error) {
 	      console.error(authToken.error)
 	      
@@ -192,7 +193,7 @@
               var xhr = new XMLHttpRequest();
               xhr.onreadystatechange = function() {
 		  if (xhr.readyState == XMLHttpRequest.DONE) {
-		      doUploadStep2(JSON.parse(xhr.responseText))
+		      doUpload(JSON.parse(xhr.responseText))
 		  }
               };
               xhr.open("POST", "{UPLOAD_ENDPOINT}", true);
@@ -201,20 +202,37 @@
 	  }
       }
 
-      function doUploadStep2(requestTemplate) {
-         console.log("YOYO", requestTemplate);
-         var xhr = new XMLHttpRequest();
-         xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-               alert("SUCCESS");
+      function doUpload(requestTemplate) {
+         console.log("got request template", requestTemplate);
+         const xhr = new XMLHttpRequest();
+         xhr.onreadystatechange = () => {
+             if (xhr.readyState == XMLHttpRequest.DONE) {
+		 console.log(xhr.responseText);
+		 try {
+		     if (JSON.parse(xhr.responseText).error !== undefined) {
+			 console.error(xhr.responseText)
+			 wrapItUp("\u2715", "failure", "Upload failed")
+		     }
+		 } catch (e) {}
+		 
+		wrapItUp("\u2714", "success", "Successful upload")
             }
-         };
-         xhr.open(requestTemplate.method, requestTemplate.url, true);
-         for (var key in requestTemplate.headers) {
-            xhr.setRequestHeader(key, requestTemplate.headers[key]);
          }
-         xhr.send(document.file_selector.file.files[0]);
+         xhr.open(requestTemplate.method, requestTemplate.url, true)
+         for (var key in requestTemplate.headers) {
+            xhr.setRequestHeader(key, requestTemplate.headers[key])
+         }
+         xhr.send(document.file_selector.file.files[0])
       }
+
+      const wrapItUp = (successMark, successMarkClass, successMessage) => {
+	  document.getElementById("success-mark").innerText = successMark
+	  document.getElementById("success-mark").setAttribute("class", successMarkClass)
+	  document.getElementById("success").innerText = successMessage
+      }
+
+      /** user clicked Submit button */
+      const doSubmit = doGetAuthToken
     </script>
   </head>
   
@@ -231,5 +249,10 @@
       <input type="file" name="file" onchange="document.file_selector.submit.removeAttribute('disabled')">
       <button type="submit" name="submit" disabled>Submit</button>
     </form>
+
+    <div class="status">
+      <span id="success-mark"></span>
+      <span id="success"></span>
+    </div>
   </body>
 </html>
