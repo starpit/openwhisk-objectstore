@@ -149,13 +149,17 @@
 	    .map(kv => kv.split("="))
 	    .reduce((M,kv)=> {M[kv[0]] = kv[1]; return M}, {})
 
+      const doLogin = () => {
+	  return window.location.href = `${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`
+      }
+	
       const doGetAuthToken = () => {
 	    try {
 		const authorization_raw = qs.authorization
 	    
 		if (!authorization_raw) {
 		    //console.log("GOOFA",`${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`)
-		    return window.location.href = `${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`
+		    doLogin()
 		 
 		} else {
 		    const authorization = JSON.parse(decodeURIComponent(authorization_raw))
@@ -233,10 +237,17 @@
 
       /** user clicked Submit button */
       const doSubmit = doGetAuthToken
+
+      const init = () => {
+	  if (!qs.authorization) {
+	      // user hasn't logged in, yet
+	      doLogin()
+	  }
+      }
     </script>
   </head>
   
-  <body>
+  <body onload="init()">
     <div class="header">
       <span class="header-title">
 	<span class="header-title-icon">&#9729;</span>
