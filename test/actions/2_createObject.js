@@ -17,16 +17,22 @@
 import it from '../helpers/driver'
 import util from 'util'
 
-it.should('list containers', (authToken, config, ow) => new Promise((resolve, reject) => {
+it.should('create an object', (authToken, config, ow) => new Promise((resolve, reject) => {
+    const containerName = 'container-test'
+    const objectName = 'object-test.txt'
+    
     ow.actions.invoke({
-	actionName: `${config.PACKAGE}/listContainers`,
+	actionName: `${config.PACKAGE}/createObject`,
 	blocking: true,
 	params: {
-	    authToken: authToken
+	    authToken: authToken,
+	    containerName: containerName,
+	    objectName: objectName,
+	    data: 'object creation test'.toString('base64')
 	}
-    }).then(listContainersActivation => {
-	util.isArray(listContainersActivation.response.result.containers)
+    }).then(activation => {
+	!activation.response.result.error
 	    ? resolve() // SUCCESS
-	    : reject("expected array, got " + listContainersActivation.response.result.containers)
+	    : reject(activation.response.result)
     }).catch(reject)
 }))
