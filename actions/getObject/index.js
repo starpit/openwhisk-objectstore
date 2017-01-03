@@ -19,7 +19,7 @@ const wrap = require('./lib/api-wrapper.js')
 exports.main = wrap({ api: 'getContainer',
 		      project: params => params.containerName || params.container,
 		      postprocess: (Cp, params) => Cp.then(C => C.getObject(params.objectName)
-							   .then(() => ({ status: 'success' }))
+							   .then(obj => ({ status: 'success', object: obj }))
    							   .catch(err => ({ status: 'error', error: err })))
    		                                     .catch(err => ({ status: 'error', error: err }))
 		    })
