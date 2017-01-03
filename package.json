@@ -12,7 +12,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "bluemix-objectstorage": "https://github.com/starpit/bluemix-objectstorage-serversdk-nodejs.git#accept_token_as_creds",
+    "bluemix-objectstorage": "https://github.com/starpit/bluemix-objectstorage-serversdk-nodejs.git#accept_authtoken_as_creds",
     "uuid": "^3.0.1"
   },
   "repository": {
