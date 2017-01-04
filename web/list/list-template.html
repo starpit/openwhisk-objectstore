@@ -139,7 +139,6 @@ const fetchData = authToken => new Promise((resolve, reject) => {
 	    resolve(JSON.parse(xhr.responseText).objects)
 	}
     }
-    //xhr.open("GET", `{LIST_ENDPOINT}?includeDocs=true&authToken=${encodeURIComponent(authToken)}`, true)
     xhr.open("POST", "{LIST_ENDPOINT}", true)
     xhr.send(JSON.stringify({includeDocs: true, authToken: authToken}))
 })
