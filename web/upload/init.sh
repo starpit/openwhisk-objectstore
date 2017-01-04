@@ -35,8 +35,9 @@ UPLOAD_ENDPOINT=`wsk api-experimental create /objectstore /createObjectAsReq pos
 
 # FIXME, how do we avoid hard-coding this?
 LOGIN_ENDPOINT="https://dal.objectstorage.open.softlayer.com/v1/AUTH_8505e32a0c1a48c2b7a37c063adad2ba/public/login.html"
+ANALYZE_ENDPOINT="https://8c979b4f-8213-4556-b4e1-db03f4a3b326-gws.api-gw.mybluemix.net/cogdigity/analyze"
 
-awk -v GET_TOKEN_ENDPOINT="${GET_TOKEN_ENDPOINT}" -v UPLOAD_ENDPOINT="${UPLOAD_ENDPOINT}" -v LOGIN_ENDPOINT="${LOGIN_ENDPOINT}" '{gsub("{GET_TOKEN_ENDPOINT}", GET_TOKEN_ENDPOINT); gsub("{UPLOAD_ENDPOINT}", UPLOAD_ENDPOINT); gsub("{LOGIN_ENDPOINT}", LOGIN_ENDPOINT); print $0}' upload-template.html > upload.html
+awk -v ANALYZE_ENDPOINT="${ANALYZE_ENDPOINT}" -v GET_TOKEN_ENDPOINT="${GET_TOKEN_ENDPOINT}" -v UPLOAD_ENDPOINT="${UPLOAD_ENDPOINT}" -v LOGIN_ENDPOINT="${LOGIN_ENDPOINT}" '{gsub("{ANALYZE_ENDPOINT}", ANALYZE_ENDPOINT); gsub("{GET_TOKEN_ENDPOINT}", GET_TOKEN_ENDPOINT); gsub("{UPLOAD_ENDPOINT}", UPLOAD_ENDPOINT); gsub("{LOGIN_ENDPOINT}", LOGIN_ENDPOINT); print $0}' upload-template.html > upload.html
 
 ../common/publish.sh upload.html
 

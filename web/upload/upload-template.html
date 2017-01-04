@@ -153,10 +153,10 @@
 	  return window.location.href = `${login_uri}?redirect_uri=${encodeURIComponent(window.location.href)}`
       }
 	
-      const doGetAuthToken = () => {
+	const doGetAuthToken = () => new Promise((resolve, reject) => {
 	  try {
 	      if (qs.authToken) {
-		  return doGetRequestTemplate(JSON.parse(decodeURIComponent(qs.authToken)))
+		  return resolve(JSON.parse(decodeURIComponent(qs.authToken)))
 	      }
 	      
 		const authorization_raw = qs.authorization
@@ -171,7 +171,12 @@
 		    const xhr = new XMLHttpRequest();
 		    xhr.onreadystatechange = function() {
 			if (xhr.readyState == XMLHttpRequest.DONE) {
-			    doGetRequestTemplate(JSON.parse(xhr.responseText));
+			    const authToken = JSON.parse(xhr.responseText)
+			    if (authToken.error) {
+				reject(authToken.error)
+			    } else {
+				resolve(authToken);
+			    }
 			}
 		    };
 		    xhr.open("GET", `{GET_TOKEN_ENDPOINT}?provider=${authorization.provider}&access_token=${authorization.access_token}`, true);
@@ -184,63 +189,96 @@
 			access_token: authorization.access_token
 		    }));*/
 		}
-	  
-		return false;
+
 	    } catch (e) {
 		console.error(e);
-		return false;
+		reject(e)
 	    }
-      }
+	})
 
-      function doGetRequestTemplate(authToken) {
-	  console.log("got authToken", authToken);
-	  if (authToken.error) {
-	      console.error(authToken.error)
-	      
-	  } else {
-              var xhr = new XMLHttpRequest();
-              xhr.onreadystatechange = function() {
-		  if (xhr.readyState == XMLHttpRequest.DONE) {
-		      doUpload(JSON.parse(xhr.responseText))
-		  }
-              };
-              xhr.open("POST", "{UPLOAD_ENDPOINT}", true);
-              //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-              xhr.send(JSON.stringify({objectName: document.file_selector.file.files[0].name, authToken: authToken}));
-	  }
-      }
+	const doGetRequestTemplate = authToken => new Promise((resolve, reject) => {
+	    console.log("got authToken", authToken);
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+		    const P = { authToken: authToken, template: JSON.parse(xhr.responseText) }
+		    resolve(P)
+		}
+            };
+            xhr.open("POST", "{UPLOAD_ENDPOINT}", true);
+            //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify({
+		objectName: document.file_selector.file.files[0].name,
+		authToken: authToken
+	    }));
+	})
 
-      function doUpload(requestTemplate) {
-         console.log("got request template", requestTemplate);
-         const xhr = new XMLHttpRequest();
-         xhr.onreadystatechange = () => {
-             if (xhr.readyState == XMLHttpRequest.DONE) {
-		 console.log(xhr.responseText);
-		 try {
-		     if (JSON.parse(xhr.responseText).error !== undefined) {
-			 console.error(xhr.responseText)
-			 wrapItUp("\u2715", "failure", "Upload failed")
-		     }
-		 } catch (e) {}
-		 
-		wrapItUp("\u2714", "success", "Successful upload")
+	const doUpload = P => new Promise((resolve, reject) => {
+	    console.log("UPLOAD",P)
+	    try {
+	    const requestTemplate = P.template
+            console.log("got request template", requestTemplate);
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+		    console.log(xhr.responseText);
+		    try {
+			if (JSON.parse(xhr.responseText).error !== undefined) {
+			    console.error(xhr.responseText)
+			    reject(xhr.responseText)
+			}
+		    } catch (e) {}
+
+		    P.imageURL = requestTemplate.url
+		    P.file = document.file_selector.file.files[0].name
+		    resolve(P)
+		}
             }
-         }
-         xhr.open(requestTemplate.method, requestTemplate.url, true)
-         for (var key in requestTemplate.headers) {
-            xhr.setRequestHeader(key, requestTemplate.headers[key])
-         }
-         xhr.send(document.file_selector.file.files[0])
-      }
+            xhr.open(requestTemplate.method, requestTemplate.url, true)
+            for (var key in requestTemplate.headers) {
+		xhr.setRequestHeader(key, requestTemplate.headers[key])
+            }
+		xhr.send(document.file_selector.file.files[0])
+	    }catch (e) {
+		console.error(e)
+		reject(e)
+	    }
+	})
 
-      const wrapItUp = (successMark, successMarkClass, successMessage) => {
-	  document.getElementById("success-mark").innerText = successMark
-	  document.getElementById("success-mark").setAttribute("class", successMarkClass)
-	  document.getElementById("success").innerText = successMessage
-      }
+	const doAnalyze = P => new Promise((resolve, reject) => {
+	    console.log("ANALYZE", P)
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+		    console.log(xhr.responseText);
+		    try {
+			if (JSON.parse(xhr.responseText).error !== undefined) {
+			    console.error(xhr.responseText)
+			    reject(xhr.responseText)
+			}
+		    } catch (e) {}
+		 
+		    resolve()
+		}
+            }
+            xhr.open("POST", "{ANALYZE_ENDPOINT}", true)
+            xhr.send(JSON.stringify(P))
+	})
 
-      /** user clicked Submit button */
-      const doSubmit = doGetAuthToken
+	const wrapItUp = (successMark, successMarkClass, successMessage) => {
+	    console.log("WRAP", successMessage)
+	    document.getElementById("success-mark").innerText = successMark
+	    document.getElementById("success-mark").setAttribute("class", successMarkClass)
+	    document.getElementById("success").innerText = successMessage
+	}
+
+	/** user clicked Submit button */
+	const doSubmit = () => doGetAuthToken()
+	      .then(doGetRequestTemplate)
+	      .then(doUpload)
+	      .then(doAnalyze)
+	      .then(() => wrapItUp("\u2714", "success", "Successful upload"))
+	      .catch(err => wrapItUp("\u2715", "failure", "Upload failed"))
 
       const init = () => {
 	  if (!qs.authorization && !qs.authToken) {
