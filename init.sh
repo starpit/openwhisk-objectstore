@@ -15,21 +15,22 @@ fi
 # remove login credentials
 CREDS_WITHOUT_PASSWORD=`echo $CREDS | jq 'del(.userId)' | jq 'del(.password)' | jq 'del(.username)'`
 
-npm install >& /dev/null
+npm install --production >& /dev/null
+npm prune --production >& /dev/null
 
 wsk package create "${PACKAGE}" 2>&1 | grep -v "resource already exists"
 wsk package update "${PACKAGE}" -p creds "${CREDS_WITHOUT_PASSWORD}"
 
 for dir in actions/*/; do
     action=$(basename "$dir")
+    
     rm -f "$dir/node_modules"
     (cd "$dir" && ln -s ../../node_modules node_modules && ln -s ../../lib lib)
 
-    wsk action delete "${PACKAGE}/${action}" 2>&1 | grep -v "resource does not exist"
     (cd $dir \
 	    && echo "${PACKAGE}/${action}" \
 	    && zip --exclude *~ -q -r action.zip * \
-	    && wsk action create --kind nodejs:6 "${PACKAGE}/${action}" action.zip; \
+	    && wsk action update --kind nodejs:6 "${PACKAGE}/${action}" action.zip; \
      rm -f action.zip)
 
     # see if the action needs the full credentials (i.e. including login credentials)
