@@ -16,11 +16,24 @@
 
 const wrap = require('./lib/api-wrapper.js')
 
+// todo this is shared with getContainerID
+const containerID = c => c.baseResourceUrl.match(/\/.*AUTH_([^\/]+).*/)[1]
+
 //
 // we have to post-process things, with the Lp=> bit,
 // because whisk requires a JSONObject, i.e. JSONArray doesn't count
 // plus, we want just the name field
 //
+const full = c => {
+    delete c.objectStorage
+    delete c.client
+    c.containerID = containerID(c)
+    return c
+}
+const partial = c => c.name
+
 exports.main = wrap({ api: 'listContainers',
-		      postprocess: Lp => Lp.then(L => ({ containers: L.map(c => c.name) }) )
+		      postprocess: (Lp, params) => Lp.then(L => ({ containers: params.include_docs
+								   ? L.map(full)
+								   : L.map(partial) }) )
 		    })
