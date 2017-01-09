@@ -39,8 +39,16 @@ for dir in actions/*/; do
 	if [ "$C" == "full" ]; then
 	    echo "Using full credentials for ${action}"
 	    wsk action update "${PACKAGE}/${action}" -p creds "${CREDS}"
+
+	    # add a with-authentication variant to any actions that require full credentials
+	    wsk action list | grep oauth/validate
+	    if [ $? == 0 ]; then
+		wsk action update --sequence "${PACKAGE}/${action}-with-authz-check" oauth/validate,"${PACKAGE}/${action}"
+	    fi
+
 	fi
     fi
     
     rm -f "$dir/node_modules" "$dir/lib"
 done
+
