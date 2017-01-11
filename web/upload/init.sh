@@ -41,6 +41,7 @@ echo "getAuthToken endpoint: ${GET_TOKEN_ENDPOINT}"
 
 if [ -n "${ENDPOINTS}" ]; then
     echo "getObjectStoreAuthToken=${GET_TOKEN_ENDPOINT}" >> ${ENDPOINTS}
+    echo "getObjectStoreAuthToken_method=${GAT_METHOD}"  >> ${ENDPOINTS}
 fi
 
 wsk api-experimental delete /objectstore /createObjectAsReq
