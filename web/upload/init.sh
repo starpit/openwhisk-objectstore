@@ -39,8 +39,16 @@ fi
 GET_TOKEN_ENDPOINT=`wsk api-experimental create /objectstore /getAuthToken "$GAT_METHOD" "$GAT" | grep https`
 echo "getAuthToken endpoint: ${GET_TOKEN_ENDPOINT}"
 
+if [ -n "${ENDPOINTS}" ]; then
+    echo "GET_OBJECTSTORE_AUTH_TOKEN=${GET_TOKEN_ENDPOINT}" >> ${ENDPOINTS}
+fi
+
 wsk api-experimental delete /objectstore /createObjectAsReq
 UPLOAD_ENDPOINT=`wsk api-experimental create /objectstore /createObjectAsReq post objectstore-${CONTAINER}/createObjectAsReq | grep https`
+
+if [ -n "${ENDPOINTS}" ]; then
+    echo "UPLOAD=${UPLOAD_ENDPOINT}" >> ${ENDPOINTS}
+fi
 
 # FIXME, how do we avoid hard-coding this?
 LOGIN_ENDPOINT="https://dal.objectstorage.open.softlayer.com/v1/AUTH_8505e32a0c1a48c2b7a37c063adad2ba/public/login.html"
