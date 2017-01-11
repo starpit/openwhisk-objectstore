@@ -40,14 +40,14 @@ GET_TOKEN_ENDPOINT=`wsk api-experimental create /objectstore /getAuthToken "$GAT
 echo "getAuthToken endpoint: ${GET_TOKEN_ENDPOINT}"
 
 if [ -n "${ENDPOINTS}" ]; then
-    echo "GET_OBJECTSTORE_AUTH_TOKEN=${GET_TOKEN_ENDPOINT}" >> ${ENDPOINTS}
+    echo "getObjectStoreAuthToken=${GET_TOKEN_ENDPOINT}" >> ${ENDPOINTS}
 fi
 
 wsk api-experimental delete /objectstore /createObjectAsReq
 UPLOAD_ENDPOINT=`wsk api-experimental create /objectstore /createObjectAsReq post objectstore-${CONTAINER}/createObjectAsReq | grep https`
 
 if [ -n "${ENDPOINTS}" ]; then
-    echo "UPLOAD=${UPLOAD_ENDPOINT}" >> ${ENDPOINTS}
+    echo "upload=${UPLOAD_ENDPOINT}" >> ${ENDPOINTS}
 fi
 
 # FIXME, how do we avoid hard-coding this?
