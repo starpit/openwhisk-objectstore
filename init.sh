@@ -53,7 +53,7 @@ for dir in actions/*/; do
 done
 
 if [ -n "${ENDPOINTS}" ]; then
-    wsk api-experimental create /${PACKAGE} /getObjectAsReq post ${PACKAGE}/getObjectAsReq | awk '{print $NF}'`
+    wsk api-experimental create /${PACKAGE} /getObjectAsReq post ${PACKAGE}/getObjectAsReq | awk '{print $NF}'
     GETOBJECTASREQ_ENDPOINT=`wsk api-experimental list /${PACKAGE} | grep getObjectAsReq | awk '{print $NF}'`
 
     echo "getObjectAsReq=${GETOBJECTASREQ_ENDPOINT}" >> ${ENDPOINTS}
