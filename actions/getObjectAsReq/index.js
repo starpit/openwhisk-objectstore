@@ -18,18 +18,16 @@ const wrap = require('./lib/api-wrapper.js')
 
 exports.main = wrap({ api: 'getContainer',
 		      project: params => params.containerName || params.container,
-		      postprocess: (Cp, params) => Cp.then(C => C.getObject(params.objectName)
-							   .then(obj => ({
-							       method: 'GET',
-							       httpMethod: 'GET', // for angular
-							       url: `${C.baseResourceUrl}/${params.objectName}`,
-							       route: `${C.baseResourceUrl}/${params.objectName}`, // for angular
-							       headers: {
-								   'X-Auth-Token': params.authToken
-								       ? params.authToken.token
-								       : 'replace this with your auth token'
-							       }
-							   }))
-   							   .catch(err => ({ status: 'error', error: err })))
-   		                                     .catch(err => ({ status: 'error', error: err }))
+		      postprocess: (Cp, params) => Cp.then(C => ({
+			  method: 'GET',
+			  httpMethod: 'GET', // for angular
+			  url: `${C.baseResourceUrl}/${params.objectName}`,
+			  route: `${C.baseResourceUrl}/${params.objectName}`, // for angular
+			  headers: {
+			      'X-Auth-Token': params.authToken
+				  ? params.authToken.token
+				  : 'replace this with your auth token'
+			  }
+		      }))
+   		      .catch(err => ({ status: 'error', error: err }))
 		    })
