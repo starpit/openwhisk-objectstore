@@ -28,7 +28,6 @@ function initOneAction {
     (cd "$dir" && ln -s ../../node_modules node_modules && ln -s ../../lib lib)
 
     (cd $dir \
-	    && echo "${PACKAGE}/${action}" \
 	    && zip --exclude *~ -q -r action.zip * \
 	    && wsk action update --kind nodejs:6 "${PACKAGE}/${action}" action.zip; \
      rm -f action.zip)
