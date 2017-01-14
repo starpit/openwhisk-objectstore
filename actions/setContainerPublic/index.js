@@ -27,6 +27,7 @@ exports.main = params => new Promise((resolve, reject) => {
 	    method: 'put',
 	    headers: {
 		'X-Auth-Token': params.authToken.token,
+		'X-Container-Meta-Web-Index': 'index.html',
 		'X-Container-Read': '.r:*'
 	    }
 	}, (err, response, body) => {
