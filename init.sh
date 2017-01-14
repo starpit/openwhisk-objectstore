@@ -21,8 +21,8 @@ npm prune --production >& /dev/null
 wsk package create "${PACKAGE}" 2>&1 | grep -v "resource already exists"
 wsk package update "${PACKAGE}" -p creds "${CREDS_WITHOUT_PASSWORD}"
 
-for dir in actions/*/; do
-    action=$(basename "$dir")
+function initOneAction {
+    local action="$1"
     
     rm -f "$dir/node_modules"
     (cd "$dir" && ln -s ../../node_modules node_modules && ln -s ../../lib lib)
@@ -50,7 +50,15 @@ for dir in actions/*/; do
     fi
     
     rm -f "$dir/node_modules" "$dir/lib"
+}
+
+for dir in actions/*/; do
+    action=$(basename "$dir")
+    initOneAction "$action" &
 done
+
+# wait for the subprocesses to finish
+wait
 
 if [ -n "${ENDPOINTS}" ]; then
     wsk api-experimental create /${PACKAGE} /getObjectAsReq post ${PACKAGE}/getObjectAsReq 2>&1 | grep -v "already exists"
