@@ -18,11 +18,40 @@ const ObjectStorage = require('bluemix-objectstorage').ObjectStorage
 
 exports.main = params => {
     return new Promise((resolve, reject) => {
-	const os = new ObjectStorage(params.creds)
-
 	try {
-	    os.client.refreshToken()
-		.then(() => resolve(os.client.authToken))
+	    // first, make an os so we can call refreshToken
+	    const os1 = new ObjectStorage(params.creds)
+	    os1.client.refreshToken()
+		.then(() => {
+		    try {
+			// then make a full os, now that we have the authToken; we need this for os.baseResourceUrl
+			delete params.creds.userId
+			delete params.creds.password
+			const os = new ObjectStorage(params.creds, undefined, os1.client.authToken)
+			const fetchObjectUrl = `${os.baseResourceUrl}/${params.container || params.containerName}/{OBJECT_NAME}`
+
+			console.log('includeTemplate?', params.includeTemplate)
+			console.log('fetchObjectUrl', fetchObjectUrl)
+	    
+			resolve(!params.includeTemplate
+				? os1.client.authToken
+				: {
+				    authToken: os1.client.authToken,
+				    template: {
+					method: 'GET',
+					httpMethod: 'GET', // for angular
+					url: fetchObjectUrl,
+					route: fetchObjectUrl, // for angular
+					headers: {
+					    'X-Auth-Token': os1.client.authToken.token
+					}
+				    }
+				})
+		    } catch (err) {
+			console.error(err)
+			reject(err)
+		    }
+		})
 		.catch(reject)
 
 	} catch (err) {
