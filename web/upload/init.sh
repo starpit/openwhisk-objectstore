@@ -22,18 +22,16 @@ if [ $? == 1 ]; then exit; else echo "Added CORS to container ${CONTAINER}"; fi
 wsk package bind objectstore objectstore-${CONTAINER} -p container ${CONTAINER} 2>&1 | grep -v "resource already exists"
 
 wsk api-experimental delete /objectstore /getAuthToken
+GAT_METHOD=post
 if [ "$1" == "--no-oauth" ]; then
     GAT=objectstore/getAuthToken
-    GAT_METHOD=get
 else    
     wsk action list | grep objectstore/getAuthToken-with-authz-check >& /dev/null
     if [ $? == 0 ]; then
 	echo "getAuthToken will be protected with authorization check"
 	GAT=objectstore/getAuthToken-with-authz-check
-	GAT_METHOD=post
     else
 	GAT=objectstore/getAuthToken
-	GAT_METHOD=get
     fi
 fi
 GET_TOKEN_ENDPOINT=`wsk api-experimental create /objectstore /getAuthToken "$GAT_METHOD" "$GAT" | grep https`
