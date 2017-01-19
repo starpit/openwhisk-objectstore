@@ -24,7 +24,7 @@ wsk package update "${PACKAGE}" -p creds "${CREDS_WITHOUT_PASSWORD}"
 function initOneAction {
     local action="$1"
     
-    rm -f "$dir/node_modules"
+    rm -f "$dir/node_modules" "$dir/lib"
     (cd "$dir" && ln -s ../../node_modules node_modules && ln -s ../../lib lib)
 
     (cd $dir \
