@@ -60,8 +60,10 @@ done
 wait
 
 if [ -n "${ENDPOINTS}" ]; then
-    wsk api-experimental create /${PACKAGE} /getObjectAsReq post ${PACKAGE}/getObjectAsReq 2>&1 | grep -v "already exists"
-    GETOBJECTASREQ_ENDPOINT=`wsk api-experimental list /${PACKAGE} | grep getObjectAsReq | awk '{print $NF}'`
+#    wsk api-experimental create /${PACKAGE} /getObjectAsReq post ${PACKAGE}/getObjectAsReq 2>&1 | grep -v "already exists"
+#    GETOBJECTASREQ_ENDPOINT=`wsk api-experimental list /${PACKAGE} | grep getObjectAsReq | awk '{print $NF}'`
 
-    echo "getObjectAsReq=${GETOBJECTASREQ_ENDPOINT}" >> ${ENDPOINTS}
+    #    echo "getObjectAsReq=${GETOBJECTASREQ_ENDPOINT}" >> ${ENDPOINTS}
+    wsk action update ${PACKAGE}/getObjectAsReq -a web-export true
+    echo "getObjectAsReq=${EP}/${PACKAGE}/getObjectAsReq" >> ${ENDPOINTS}
 fi
